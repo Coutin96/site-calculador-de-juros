@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Juros Compostos com Aportes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .result {
+      margin-top: 30px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .month {
+      margin-bottom: 10px;
+    }
+    .aporte-var {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .aporte-var input {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Calculadora de Juros Compostos com Aportes</h1>
+
+  <label for="montante">Valor Inicial (R$)</label>
+  <input type="number" id="montante" placeholder="Ex: 1000" />
+
+  <label for="juros">Taxa de Juros (%)</label>
+  <input type="number" id="juros" placeholder="Ex: 1.5" step="0.01" />
+
+  <label for="meses">Quantidade de Meses</label>
+  <input type="number" id="meses" placeholder="Ex: 12" />
+
+  <label for="tipo">Tipo de Juros</label>
+  <select id="tipo">
+    <option value="mensal">Mensal</option>
+    <option value="diario">Diário</option>
+  </select>
+
+  <label for="aporteTipo">Tipo de Aporte</label>
+  <select id="aporteTipo" onchange="toggleAportes()">
+    <option value="fixo">Aporte Fixo Mensal</option>
+    <option value="variavel">Aportes Variáveis por Mês</option>
+  </select>
+
+  <div id="aporteFixoContainer">
+    <label for="aporteFixo">Valor Fixo Mensal (R$)</label>
+    <input type="number" id="aporteFixo" placeholder="Ex: 1000" />
+  </div>
+
+  <div id="aportesVariaveisContainer" style="display: none;">
+    <button type="button" onclick="adicionarAporte()">Adicionar Aporte Variável</button>
+    <div id="listaAportes"></div>
+  </div>
+
+  <button onclick="calcular()">Calcular</button>
+
+  <div class="result" id="resultado"></div>
+
+  <script>
+    function toggleAportes() {
+      const tipo = document.getElementById("aporteTipo").value;
+      document.getElementById("aporteFixoContainer").style.display = tipo === "fixo" ? "block" : "none";
+      document.getElementById("aportesVariaveisContainer").style.display = tipo === "variavel" ? "block" : "none";
+    }
+
+    function adicionarAporte() {
+      const lista = document.getElementById("listaAportes");
+      const totalMeses = parseInt(document.getElementById("meses").value) || 0;
+      const atual = lista.children.length + 1;
+
+      if (atual > totalMeses) {
+        alert("Você já adicionou aportes para todos os meses.");
+        return;
+      }
+
+      const div = document.createElement("div");
+      div.classList.add("aporte-var");
+      div.innerHTML = `
+        <label>Mês ${atual}</label>
+        <input type="number" class="aporteVariavel" data-mes="${atual}" placeholder="Valor do aporte (R$)" />
+      `;
+      lista.appendChild(div);
+    }
+
+    function calcular() {
+      const montanteInicial = parseFloat(document.getElementById("montante").value);
+      const taxaJuros = parseFloat(document.getElementById("juros").value) / 100;
+      const meses = parseInt(document.getElementById("meses").value);
+      const tipo = document.getElementById("tipo").value;
+      const tipoAporte = document.getElementById("aporteTipo").value;
+      const aporteFixo = parseFloat(document.getElementById("aporteFixo").value) || 0;
+
+      const resultadoDiv = document.getElementById("resultado");
+      resultadoDiv.innerHTML = "";
+
+      if (isNaN(montanteInicial) || isNaN(taxaJuros) || isNaN(meses)) {
+        resultadoDiv.innerHTML = "<p>Preencha todos os campos obrigatórios corretamente.</p>";
+        return;
+      }
+
+      let montante = montanteInicial;
+
+      resultadoDiv.innerHTML += `<p><strong>Montante Inicial:</strong> R$ ${montante.toFixed(2)}</p>`;
+      resultadoDiv.innerHTML += `<p><strong>Tipo de Juros:</strong> ${tipo === 'mensal' ? 'Mensal' : 'Diário (30 dias/mês)'}</p>`;
+      resultadoDiv.innerHTML += `<hr>`;
+
+      const aportesVariaveis = [];
+      if (tipoAporte === "variavel") {
+        const inputs = document.querySelectorAll(".aporteVariavel");
+        inputs.forEach(input => {
+          aportesVariaveis.push(parseFloat(input.value) || 0);
+        });
+      }
+
+      for (let i = 1; i <= meses; i++) {
+        // Adiciona aporte
+        if (tipoAporte === "fixo") {
+          montante += aporteFixo;
+        } else {
+          montante += aportesVariaveis[i - 1] || 0;
+        }
+
+        // Aplica juros
+        if (tipo === 'mensal') {
+          montante *= (1 + taxaJuros);
+        } else {
+          for (let d = 1; d <= 30; d++) {
+            montante *= (1 + taxaJuros);
+          }
+        }
+
+        resultadoDiv.innerHTML += `<div class="month">Mês ${i}: R$ ${montante.toFixed(2)}</div>`;
+      }
+
+      resultadoDiv.innerHTML += `<hr><p><strong>Total Final:</strong> R$ ${montante.toFixed(2)}</p>`;
+    }
+  </script>
+
+</body>
+</html>
