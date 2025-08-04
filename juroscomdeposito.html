@@ -141,24 +141,28 @@
       }
 
       for (let i = 1; i <= meses; i++) {
-        // Adiciona aporte
-        if (tipoAporte === "fixo") {
-          montante += aporteFixo;
-        } else {
-          montante += aportesVariaveis[i - 1] || 0;
-        }
-
-        // Aplica juros
+        // 1. Aplica juros primeiro
         if (tipo === 'mensal') {
-          montante *= (1 + taxaJuros);
-        } else {
-          for (let d = 1; d <= 30; d++) {
             montante *= (1 + taxaJuros);
-          }
+        } 
+        else {
+        for (let d = 1; d <= 30; d++) {
+        montante *= (1 + taxaJuros);
         }
+    }
 
-        resultadoDiv.innerHTML += `<div class="month">Mês ${i}: R$ ${montante.toFixed(2)}</div>`;
-      }
+  // 2. Adiciona aporte apenas a partir do mês 2
+        if (i > 1) {
+            if (tipoAporte === "fixo") {
+            montante += aporteFixo;
+            }
+            else {
+        montante += aportesVariaveis[i - 2] || 0;
+        }
+    }
+
+    resultadoDiv.innerHTML += `<div class="month">Mês ${i}: R$ ${montante.toFixed(2)}</div>`;
+    }
 
       resultadoDiv.innerHTML += `<hr><p><strong>Total Final:</strong> R$ ${montante.toFixed(2)}</p>`;
     }
