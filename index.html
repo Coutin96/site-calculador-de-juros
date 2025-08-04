@@ -42,7 +42,12 @@
 </head>
 <body>
 
-  
+  <div style="position: absolute; top: 20px; right: 20px;">
+  <button onclick="trocarCalculadora()" style="padding: 8px 12px; cursor: pointer;">
+    Trocar Calculadora
+  </button>
+</div>
+
   <h1>Calculadora de Juros Compostos</h1>
 
   <label for="montante">Valor Inicial (R$)</label>
@@ -99,6 +104,18 @@
       resultadoDiv.innerHTML += `<hr><p><strong>Total Final:</strong> R$ ${montante.toFixed(2)}</p>`;
     }
   </script>
+  <script>
+  function trocarCalculadora() {
+    const atual = window.location.pathname;
+
+    if (atual.includes("juroscomdeposito.html")) {
+      window.location.href = "index.html"; // Volta para a principal
+    } else {
+      window.location.href = "juroscomdeposito.html"; // Vai para a com depósitos
+    }
+  }
+</script>
+
 
 </body>
 </html>
